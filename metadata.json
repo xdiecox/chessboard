@@ -1,0 +1,5 @@
+{
+  "name": "Ajedrez Maestro",
+  "description": "Un juego de ajedrez completo con todas las reglas, validación de movimientos y una interfaz elegante.",
+  "requestFramePermissions": []
+}
