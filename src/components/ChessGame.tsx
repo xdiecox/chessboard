@@ -51,30 +51,74 @@ const ROOK_SVG = (color: string) => (
   </svg>
 );
 
+const BISHOP_SVG = (color: string) => (
+  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
+    <path 
+      d="M50 15c-5 0-10 5-10 15 0 10 5 15 10 15s10-5 10-15c0-10-5-15-10-15z M40 45l-5 15h30l-5-15 M35 60v15h30v-15 M25 75h50v15H25z" 
+      fill="currentColor" 
+      stroke="black"
+      strokeWidth="4"
+      strokeLinejoin="round"
+    />
+    <path d="M45 25l10 10" stroke="black" strokeWidth="2" />
+  </svg>
+);
+
+const QUEEN_SVG = (color: string) => (
+  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
+    <path 
+      d="M50 15l10 15h20l-10 10 15 25H15l15-25-10-10h20l10-15z M30 65v15h40v-15 M25 80h50v10H25z" 
+      fill="currentColor" 
+      stroke="black"
+      strokeWidth="4"
+      strokeLinejoin="round"
+    />
+    <circle cx="50" cy="15" r="5" fill="currentColor" stroke="black" strokeWidth="2" />
+    <circle cx="20" cy="30" r="3" fill="currentColor" stroke="black" strokeWidth="2" />
+    <circle cx="80" cy="30" r="3" fill="currentColor" stroke="black" strokeWidth="2" />
+  </svg>
+);
+
+const KNIGHT_SVG = (color: string) => (
+  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
+    <path 
+      d="M30 85h40v-10H30z M35 75l5-10h20l5 10 M40 65c0-20 5-35 15-40 5-2 10-5 10-15 0-5-5-10-15-10-15 0-20 15-20 25 0 10 5 20 10 30z" 
+      fill="currentColor" 
+      stroke="black"
+      strokeWidth="4"
+      strokeLinejoin="round"
+    />
+    <circle cx="55" cy="25" r="3" fill="black" />
+  </svg>
+);
+
 const renderPieceSVG = (char: any) => {
   if (char.type === 'star') return STAR_SVG(char.color);
   if (char.type === 'king') return KING_SVG(char.color);
+  if (char.type === 'queen') return QUEEN_SVG(char.color);
   if (char.type === 'rook') return ROOK_SVG(char.color);
+  if (char.type === 'bishop') return BISHOP_SVG(char.color);
+  if (char.type === 'knight') return KNIGHT_SVG(char.color);
   return PAWN_SVG(char.color);
 };
 
 const CHARACTERS = [
   { id: 'black-pawn', color: 'text-zinc-900', bg: 'bg-zinc-900', border: 'border-zinc-700', shadow: 'shadow-black/40', ring: 'ring-zinc-900/60', isEmpty: false, type: 'pawn', canMove: true },
   { id: 'black-king', color: 'text-zinc-900', bg: 'bg-zinc-900', border: 'border-zinc-700', shadow: 'shadow-black/40', ring: 'ring-zinc-900/60', isEmpty: false, type: 'king', canMove: true },
+  { id: 'black-queen', color: 'text-zinc-900', bg: 'bg-zinc-900', border: 'border-zinc-700', shadow: 'shadow-black/40', ring: 'ring-zinc-900/60', isEmpty: false, type: 'queen', canMove: true },
   { id: 'black-rook', color: 'text-zinc-900', bg: 'bg-zinc-900', border: 'border-zinc-700', shadow: 'shadow-black/40', ring: 'ring-zinc-900/60', isEmpty: false, type: 'rook', canMove: true },
-  { id: 'empty-4', color: 'text-transparent', bg: 'bg-transparent', border: 'border-transparent', shadow: '', ring: '', isEmpty: true },
-  { id: 'empty-5', color: 'text-transparent', bg: 'bg-transparent', border: 'border-transparent', shadow: '', ring: '', isEmpty: true },
-  { id: 'empty-6', color: 'text-transparent', bg: 'bg-transparent', border: 'border-transparent', shadow: '', ring: '', isEmpty: true },
+  { id: 'black-bishop', color: 'text-zinc-900', bg: 'bg-zinc-900', border: 'border-zinc-700', shadow: 'shadow-black/40', ring: 'ring-zinc-900/60', isEmpty: false, type: 'bishop', canMove: true },
+  { id: 'black-knight', color: 'text-zinc-900', bg: 'bg-zinc-900', border: 'border-zinc-700', shadow: 'shadow-black/40', ring: 'ring-zinc-900/60', isEmpty: false, type: 'knight', canMove: true },
   { id: 'empty-7', color: 'text-transparent', bg: 'bg-transparent', border: 'border-transparent', shadow: '', ring: '', isEmpty: true },
   { id: 'empty-8', color: 'text-transparent', bg: 'bg-transparent', border: 'border-transparent', shadow: '', ring: '', isEmpty: true },
   { id: 'white-pawn', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'pawn', canMove: true },
   { id: 'white-king', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'king', canMove: true },
+  { id: 'white-queen', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'queen', canMove: true },
   { id: 'white-rook', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'rook', canMove: true },
-  { id: 'blue-pawn', color: 'text-blue-500', bg: 'bg-blue-500', border: 'border-blue-300', shadow: 'shadow-blue-900/40', ring: 'ring-blue-500/60', isEmpty: false, type: 'pawn', canMove: true },
-  { id: 'green-pawn', color: 'text-emerald-500', bg: 'bg-emerald-500', border: 'border-emerald-300', shadow: 'shadow-emerald-900/40', ring: 'ring-emerald-500/60', isEmpty: false, type: 'pawn', canMove: true },
+  { id: 'white-bishop', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'bishop', canMove: true },
+  { id: 'white-knight', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'knight', canMove: true },
   { id: 'star', color: 'text-yellow-400', bg: 'bg-yellow-400', border: 'border-yellow-200', shadow: 'shadow-yellow-900/40', ring: 'ring-yellow-400/60', isEmpty: false, type: 'star', canMove: false },
-  { id: 'purple-star', color: 'text-purple-400', bg: 'bg-purple-400', border: 'border-purple-200', shadow: 'shadow-purple-900/40', ring: 'ring-purple-400/60', isEmpty: false, type: 'star', canMove: false },
-  { id: 'orange-star', color: 'text-orange-400', bg: 'bg-orange-400', border: 'border-orange-200', shadow: 'shadow-orange-900/40', ring: 'ring-orange-400/60', isEmpty: false, type: 'star', canMove: false },
+  { id: 'red-star', color: 'text-red-500', bg: 'bg-red-500', border: 'border-red-300', shadow: 'shadow-red-900/40', ring: 'ring-red-500/60', isEmpty: false, type: 'star', canMove: false },
 ];
 
 const INITIAL_BOARD = Array(8).fill(null).map(() => Array(8).fill(''));
@@ -204,10 +248,11 @@ export default function ChessGame() {
     const absColDiff = Math.abs(colDiff);
 
     if (fromChar.type === 'pawn') {
-      // Pawn movement: one square up (only if empty)
-      const isForward = rowDiff === -1 && colDiff === 0 && !toChar;
-      // Pawn capture: one square diagonally up
-      const isCapture = rowDiff === -1 && absColDiff === 1 && toChar && !toChar.isEmpty;
+      const direction = fromChar.id.startsWith('black') ? 1 : -1;
+      // Pawn movement: one square in direction (only if empty)
+      const isForward = rowDiff === direction && colDiff === 0 && !toChar;
+      // Pawn capture: one square diagonally in direction
+      const isCapture = rowDiff === direction && absColDiff === 1 && toChar && !toChar.isEmpty;
       return { valid: isForward || isCapture, isCapture: !!isCapture };
     }
 
@@ -244,6 +289,14 @@ export default function ChessGame() {
       return { valid: true, isCapture: !!toChar };
     }
 
+    if (fromChar.type === 'knight') {
+      // Knight movement: "L" shape (2 in one direction, 1 in the other)
+      const isLShape = (absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2);
+      if (!isLShape) return { valid: false, isCapture: false };
+      
+      return { valid: true, isCapture: !!toChar };
+    }
+
     if (fromChar.type === 'rook') {
       // Rook movement: any number of squares horizontally or vertically
       const isStraight = rowDiff === 0 || colDiff === 0;
@@ -264,6 +317,54 @@ export default function ChessGame() {
         currentCol += colStep;
       }
       
+      return { valid: true, isCapture: !!toChar };
+    }
+
+    if (fromChar.type === 'queen') {
+      // Queen movement: combines Rook and Bishop
+      const isStraight = rowDiff === 0 || colDiff === 0;
+      const isDiagonal = absRowDiff === absColDiff;
+      
+      if (!isStraight && !isDiagonal) return { valid: false, isCapture: false };
+
+      // Check for path obstruction
+      const rowStep = rowDiff === 0 ? 0 : rowDiff / (absRowDiff || 1);
+      const colStep = colDiff === 0 ? 0 : colDiff / (absColDiff || 1);
+      
+      let currentRow = from.row + rowStep;
+      let currentCol = from.col + colStep;
+      
+      while (currentRow !== to.row || currentCol !== to.col) {
+        if (board[currentRow][currentCol]) {
+          return { valid: false, isCapture: false };
+        }
+        currentRow += rowStep;
+        currentCol += colStep;
+      }
+      
+      return { valid: true, isCapture: !!toChar };
+    }
+
+    if (fromChar.type === 'bishop') {
+      // Bishop movement: any number of squares diagonally
+      const isDiagonal = absRowDiff === absColDiff;
+      if (!isDiagonal) return { valid: false, isCapture: false };
+
+      // Check for path obstruction
+      const rowStep = rowDiff / absRowDiff;
+      const colStep = colDiff / absColDiff;
+
+      let currentRow = from.row + rowStep;
+      let currentCol = from.col + colStep;
+
+      while (currentRow !== to.row || currentCol !== to.col) {
+        if (board[currentRow][currentCol]) {
+          return { valid: false, isCapture: false };
+        }
+        currentRow += rowStep;
+        currentCol += colStep;
+      }
+
       return { valid: true, isCapture: !!toChar };
     }
 
