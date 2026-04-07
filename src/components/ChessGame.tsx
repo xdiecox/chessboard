@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { RotateCcw, Play, Edit2, UserPlus, Upload, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { RotateCcw, Play, Edit2, UserPlus, Upload, Image as ImageIcon, RefreshCw, ArrowRight, Trophy } from 'lucide-react';
 
 // Character definitions
 const PAWN_SVG = (color: string) => (
@@ -121,6 +121,15 @@ const CHARACTERS = [
   { id: 'red-star', color: 'text-red-500', bg: 'bg-red-500', border: 'border-red-300', shadow: 'shadow-red-900/40', ring: 'ring-red-500/60', isEmpty: false, type: 'star', canMove: false },
 ];
 
+const WORLDS_CONFIG = [
+  { id: 'pawn', name: 'Mundo Peón', pieceId: 'white-pawn', type: 'pawn' },
+  { id: 'king', name: 'Mundo Rey', pieceId: 'white-king', type: 'king' },
+  { id: 'rook', name: 'Mundo Torre', pieceId: 'white-rook', type: 'rook' },
+  { id: 'bishop', name: 'Mundo Alfil', pieceId: 'white-bishop', type: 'bishop' },
+  { id: 'queen', name: 'Mundo Dama', pieceId: 'white-queen', type: 'queen' },
+  { id: 'knight', name: 'Mundo Caballo', pieceId: 'white-knight', type: 'knight' }
+];
+
 const INITIAL_BOARD = Array(8).fill(null).map(() => Array(8).fill(''));
 
 type Position = { row: number; col: number };
@@ -133,6 +142,27 @@ export default function ChessGame() {
   const [playerImage, setPlayerImage] = useState<string | null>(null);
   const [capturedChars, setCapturedChars] = useState<string[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [currentWorld, setCurrentWorld] = useState<{type: string, level: number} | null>(null);
+  const [showVictory, setShowVictory] = useState(false);
+
+  const playVictorySound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + i * 0.1);
+        osc.stop(audioCtx.currentTime + i * 0.1 + 0.4);
+      });
+    } catch (e) {}
+  };
 
   const playCaptureSound = () => {
     try {
@@ -345,6 +375,14 @@ export default function ChessGame() {
       return { valid: true, isCapture: !!toChar };
     }
 
+    if (fromChar.type === 'knight') {
+      // Knight movement: L-shape (2 in one direction, 1 in the other)
+      const isLShape = (absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2);
+      if (!isLShape) return { valid: false, isCapture: false };
+      
+      return { valid: true, isCapture: !!toChar };
+    }
+
     if (fromChar.type === 'bishop') {
       // Bishop movement: any number of squares diagonally
       const isDiagonal = absRowDiff === absColDiff;
@@ -411,6 +449,22 @@ export default function ChessGame() {
         const newBoard = board.map(r => [...r]);
         newBoard[selected.row][selected.col] = '';
         newBoard[row][col] = movingCharId;
+
+        // Check for victory
+        const remainingStars = newBoard.flat().filter(cell => cell === 'star').length;
+        const movingChar = getCharStyles(movingCharId);
+        const reachedEnd = movingChar.type === 'pawn' && (
+          (movingCharId.startsWith('white') && row === 0) || 
+          (movingCharId.startsWith('black') && row === 7)
+        );
+
+        if (currentWorld && (remainingStars === 0 || reachedEnd)) {
+          setTimeout(() => {
+            setShowVictory(true);
+            playVictorySound();
+          }, 600);
+        }
+
         setBoard(newBoard);
         setSelected(null);
       } else {
@@ -476,7 +530,104 @@ export default function ChessGame() {
     setSelected(null);
     setIsEditorMode(true);
     setCapturedChars([]);
+    setCurrentWorld(null);
+    setShowVictory(false);
     playResetSound();
+  };
+
+  const generateProceduralWorld = (type: string, level: number) => {
+    const newBoard = INITIAL_BOARD.map(row => [...row]);
+    let currentRow: number, currentCol: number;
+    const pieceId = `white-${type}`;
+    
+    // Start position
+    if (type === 'pawn') {
+      currentRow = 7;
+      currentCol = Math.floor(Math.random() * 8);
+    } else {
+      currentRow = Math.floor(Math.random() * 8);
+      currentCol = Math.floor(Math.random() * 8);
+    }
+    
+    newBoard[currentRow][currentCol] = pieceId;
+    const starsToPlace = type === 'pawn' ? 7 : 10;
+    let placedStars = 0;
+    let attempts = 0;
+    const maxAttempts = 200;
+
+    // Simulate moves to place stars (guarantees solvability)
+    while (placedStars < starsToPlace && attempts < maxAttempts) {
+      attempts++;
+      const possibleMoves: Position[] = [];
+      
+      // Check all squares for valid moves from current virtual position
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          // Temporarily set board to check moves
+          const tempBoard = newBoard.map(row => [...row]);
+          tempBoard[currentRow][currentCol] = pieceId;
+          
+          // Simplified move check for generator
+          const from = { row: currentRow, col: currentCol };
+          const to = { row: r, col: c };
+          
+          // Reuse isValidMove logic (simplified)
+          const rowDiff = to.row - from.row;
+          const colDiff = to.col - from.col;
+          const absRowDiff = Math.abs(rowDiff);
+          const absColDiff = Math.abs(colDiff);
+
+          let valid = false;
+          if (type === 'pawn') {
+            // Pawns only move forward-diagonal for captures in these worlds
+            const direction = pieceId.startsWith('black') ? 1 : -1;
+            valid = rowDiff === direction && absColDiff === 1;
+          } else if (type === 'king') {
+            valid = absRowDiff <= 1 && absColDiff <= 1 && (absRowDiff !== 0 || absColDiff !== 0);
+          } else if (type === 'knight') {
+            valid = (absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2);
+          } else if (type === 'rook') {
+            valid = rowDiff === 0 || colDiff === 0;
+          } else if (type === 'bishop') {
+            valid = absRowDiff === absColDiff;
+          } else if (type === 'queen') {
+            valid = rowDiff === 0 || colDiff === 0 || absRowDiff === absColDiff;
+          }
+
+          if (valid && newBoard[r][c] === '') {
+            possibleMoves.push({ row: r, col: c });
+          }
+        }
+      }
+
+      if (possibleMoves.length > 0) {
+        const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        newBoard[move.row][move.col] = 'star';
+        currentRow = move.row;
+        currentCol = move.col;
+        placedStars++;
+      } else {
+        // If stuck, try jumping to a random empty square to continue placing
+        // EXCEPT for pawns, who cannot jump back or move if at the end
+        if (type === 'pawn') break;
+        
+        currentRow = Math.floor(Math.random() * 8);
+        currentCol = Math.floor(Math.random() * 8);
+      }
+    }
+
+    return newBoard;
+  };
+
+  const loadWorld = (worldType: string, level: number = 1) => {
+    const newBoard = generateProceduralWorld(worldType, level);
+    setBoard(newBoard);
+    setSelected(null);
+    setIsEditorMode(false);
+    setCapturedChars([]);
+    setCurrentWorld({ type: worldType, level });
+    setShowVictory(false);
+    playToggleSound(true);
   };
 
   return (
@@ -487,8 +638,38 @@ export default function ChessGame() {
 
         <div className="w-full flex flex-col items-center justify-center gap-2">
           
-          <div className="flex flex-row items-start gap-4">
-            {/* Left Column: Board + Captured Lobby */}
+          <div className="flex flex-row items-start gap-8">
+            {/* Left Sidebar: Worlds */}
+            <div className="flex flex-col gap-4 pt-4">
+              <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-2 text-center">Mundos</div>
+              {WORLDS_CONFIG.map((world) => {
+                const char = getCharStyles(world.pieceId);
+                const isActive = currentWorld?.type === world.type;
+                return (
+                  <button
+                    key={world.id}
+                    onClick={() => loadWorld(world.type, 1)}
+                    className={`
+                      group relative w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
+                      ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
+                    `}
+                    title={world.name}
+                  >
+                    <div className={`w-8 h-8 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'}`}>
+                      {renderPieceSVG(char)}
+                    </div>
+                    {isActive && (
+                      <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
+                        L{currentWorld.level}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/5 transition-colors" />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Middle Column: Board + Captured Lobby */}
             <div className="flex flex-col gap-4 items-center">
               {/* Main Board Container */}
               <div className={`relative bg-[#262421] rounded-lg shadow-2xl overflow-hidden border-4 border-[#262421] transition-all duration-100 ${isCapturing ? 'animate-shake ring-4 ring-red-500/50' : ''}`}>
@@ -530,7 +711,46 @@ export default function ChessGame() {
                 </div>
 
                 {/* The 8x8 Grid */}
-          <div className="grid grid-cols-8 border-none">
+          <div className="grid grid-cols-8 border-none relative">
+            {/* Victory Overlay */}
+            {showVictory && (
+              <div className="absolute inset-0 z-[100] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-500">
+                <div className="bg-zinc-900 border-2 border-red-600/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(220,38,38,0.3)] flex flex-col items-center gap-6 scale-in-center">
+                  <div className="relative">
+                    <Trophy className="text-yellow-400 w-16 h-16 animate-bounce" />
+                    <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full animate-pulse" />
+                  </div>
+                  
+                  <div className="text-center">
+                    <h2 className="text-2xl font-black uppercase tracking-tighter text-white">¡Mundo Completado!</h2>
+                    <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest mt-1">Nivel {currentWorld?.level}</p>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => loadWorld(currentWorld!.type, currentWorld!.level)}
+                      className="flex flex-col items-center gap-2 group"
+                    >
+                      <div className="w-14 h-14 bg-zinc-800 hover:bg-zinc-700 rounded-2xl flex items-center justify-center transition-all active:scale-90 border border-zinc-700">
+                        <RefreshCw className="text-zinc-300 group-hover:rotate-180 transition-transform duration-500" size={24} />
+                      </div>
+                      <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Reintentar</span>
+                    </button>
+
+                    <button 
+                      onClick={() => loadWorld(currentWorld!.type, currentWorld!.level + 1)}
+                      className="flex flex-col items-center gap-2 group"
+                    >
+                      <div className="w-14 h-14 bg-red-600 hover:bg-red-500 rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-[0_0_20px_rgba(220,38,38,0.4)]">
+                        <ArrowRight className="text-white group-hover:translate-x-1 transition-transform" size={24} />
+                      </div>
+                      <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Siguiente</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {board.map((row, rowIndex) => (
               row.map((charId, colIndex) => {
                 const isDark = (rowIndex + colIndex) % 2 === 1;
@@ -761,6 +981,11 @@ export default function ChessGame() {
       50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 0.5); }
       100% { box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
     }
+    @keyframes scale-in-center {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .scale-in-center { animation: scale-in-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both; }
     .animate-glow { animation: glow 1s ease-out; }
     .animate-shake { animation: shake 0.15s ease-in-out infinite; }
     .animate-in { animation: slide-in-from-left 0.5s ease-out; }
