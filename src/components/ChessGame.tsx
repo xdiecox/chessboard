@@ -2,18 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { RotateCcw, Play, Edit2, UserPlus, Upload, Image as ImageIcon, RefreshCw, ArrowRight, Trophy } from 'lucide-react';
 
 // Character definitions
-const PAWN_SVG = (color: string) => (
-  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
-    <path 
-      d="M50 15c-8.3 0-15 6.7-15 15 0 5.4 2.8 10.1 7.1 12.8-5.4 2.6-9.1 8-9.1 14.2 0 4.1 1.6 7.8 4.2 10.6-6.1 2.4-10.2 8.3-10.2 15.4h46c0-7.1-4.1-13-10.2-15.4 2.6-2.8 4.2-6.5 4.2-10.6 0-6.2-3.7-11.6-9.1-14.2 4.3-2.7 7.1-7.4 7.1-12.8 0-8.3-6.7-15-15-15z" 
-      fill="currentColor" 
-      stroke="black"
-      strokeWidth="4"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 const STAR_SVG = (color: string) => (
   <svg viewBox="0 0 24 24" className={`w-full h-full ${color} drop-shadow-md`}>
     <path 
@@ -26,80 +14,35 @@ const STAR_SVG = (color: string) => (
   </svg>
 );
 
-const KING_SVG = (color: string) => (
-  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
-    <path 
-      d="M50 10l5 10h10v5h-10l-5 10-5-10h-10v-5h10l5-10z M25 40l10 15h30l10-15 M30 55v25h40v-25 M25 80h50v10H25z" 
-      fill="currentColor" 
-      stroke="black"
-      strokeWidth="4"
-      strokeLinejoin="round"
-    />
-    <path d="M35 55l5 10h20l5-10" fill="none" stroke="black" strokeWidth="2" />
-  </svg>
-);
+const PIECE_IMAGES: Record<string, string> = {
+  'white-pawn': 'https://lichess1.org/assets/piece/cburnett/wP.svg',
+  'white-knight': 'https://lichess1.org/assets/piece/cburnett/wN.svg',
+  'white-bishop': 'https://lichess1.org/assets/piece/cburnett/wB.svg',
+  'white-rook': 'https://lichess1.org/assets/piece/cburnett/wR.svg',
+  'white-queen': 'https://lichess1.org/assets/piece/cburnett/wQ.svg',
+  'white-king': 'https://lichess1.org/assets/piece/cburnett/wK.svg',
+  'black-pawn': 'https://lichess1.org/assets/piece/cburnett/bP.svg',
+  'black-knight': 'https://lichess1.org/assets/piece/cburnett/bN.svg',
+  'black-bishop': 'https://lichess1.org/assets/piece/cburnett/bB.svg',
+  'black-rook': 'https://lichess1.org/assets/piece/cburnett/bR.svg',
+  'black-queen': 'https://lichess1.org/assets/piece/cburnett/bQ.svg',
+  'black-king': 'https://lichess1.org/assets/piece/cburnett/bK.svg',
+};
 
-const ROOK_SVG = (color: string) => (
-  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
-    <path 
-      d="M25 15v15h10v-10h10v10h10v-10h10v10h10v-15h-50z M30 30l5 10h30l5-10 M35 40v35h30v-35 M25 75h50v15H25z" 
-      fill="currentColor" 
-      stroke="black"
-      strokeWidth="4"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const BISHOP_SVG = (color: string) => (
-  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
-    <path 
-      d="M50 15c-5 0-10 5-10 15 0 10 5 15 10 15s10-5 10-15c0-10-5-15-10-15z M40 45l-5 15h30l-5-15 M35 60v15h30v-15 M25 75h50v15H25z" 
-      fill="currentColor" 
-      stroke="black"
-      strokeWidth="4"
-      strokeLinejoin="round"
-    />
-    <path d="M45 25l10 10" stroke="black" strokeWidth="2" />
-  </svg>
-);
-
-const QUEEN_SVG = (color: string) => (
-  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
-    <path 
-      d="M50 15l10 15h20l-10 10 15 25H15l15-25-10-10h20l10-15z M30 65v15h40v-15 M25 80h50v10H25z" 
-      fill="currentColor" 
-      stroke="black"
-      strokeWidth="4"
-      strokeLinejoin="round"
-    />
-    <circle cx="50" cy="15" r="5" fill="currentColor" stroke="black" strokeWidth="2" />
-    <circle cx="20" cy="30" r="3" fill="currentColor" stroke="black" strokeWidth="2" />
-    <circle cx="80" cy="30" r="3" fill="currentColor" stroke="black" strokeWidth="2" />
-  </svg>
-);
-
-const KNIGHT_SVG = (color: string) => (
-  <svg viewBox="0 0 100 100" className={`w-full h-full ${color} drop-shadow-md`}>
-    <path 
-      d="M30 85h40v-10H30z M35 75l5-10h20l5 10 M40 65c0-20 5-35 15-40 5-2 10-5 10-15 0-5-5-10-15-10-15 0-20 15-20 25 0 10 5 20 10 30z" 
-      fill="currentColor" 
-      stroke="black"
-      strokeWidth="4"
-      strokeLinejoin="round"
-    />
-    <circle cx="55" cy="25" r="3" fill="black" />
-  </svg>
-);
-
-const renderPieceSVG = (char: any) => {
+const renderPiece = (char: any) => {
   if (char.type === 'star') return STAR_SVG(char.color);
-  if (char.type === 'king') return KING_SVG(char.color);
-  if (char.type === 'queen') return QUEEN_SVG(char.color);
-  if (char.type === 'rook') return ROOK_SVG(char.color);
-  if (char.type === 'bishop') return BISHOP_SVG(char.color);
-  if (char.type === 'knight') return KNIGHT_SVG(char.color);
-  return PAWN_SVG(char.color);
+  const imageUrl = PIECE_IMAGES[char.id];
+  if (imageUrl) {
+    return (
+      <img 
+        src={imageUrl} 
+        alt={char.id} 
+        className="w-full h-full object-contain pointer-events-none" 
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+  return null;
 };
 
 const CHARACTERS = [
@@ -118,7 +61,7 @@ const CHARACTERS = [
   { id: 'white-bishop', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'bishop', canMove: true },
   { id: 'white-knight', color: 'text-zinc-100', bg: 'bg-zinc-100', border: 'border-zinc-300', shadow: 'shadow-zinc-900/40', ring: 'ring-zinc-100/60', isEmpty: false, type: 'knight', canMove: true },
   { id: 'star', color: 'text-yellow-400', bg: 'bg-yellow-400', border: 'border-yellow-200', shadow: 'shadow-yellow-900/40', ring: 'ring-yellow-400/60', isEmpty: false, type: 'star', canMove: false },
-  { id: 'red-star', color: 'text-red-500', bg: 'bg-red-500', border: 'border-red-300', shadow: 'shadow-red-900/40', ring: 'ring-red-500/60', isEmpty: false, type: 'star', canMove: false },
+  { id: 'red-star', color: 'text-green-500', bg: 'bg-green-500', border: 'border-green-300', shadow: 'shadow-green-900/40', ring: 'ring-green-500/60', isEmpty: false, type: 'star', canMove: false },
 ];
 
 const WORLDS_CONFIG = [
@@ -128,6 +71,15 @@ const WORLDS_CONFIG = [
   { id: 'bishop', name: 'Mundo Alfil', pieceId: 'white-bishop', type: 'bishop' },
   { id: 'queen', name: 'Mundo Dama', pieceId: 'white-queen', type: 'queen' },
   { id: 'knight', name: 'Mundo Caballo', pieceId: 'white-knight', type: 'knight' }
+];
+
+const BLACK_WORLDS_CONFIG = [
+  { id: 'bpawn', name: 'Mundo Peón Negro', pieceId: 'white-pawn', type: 'pawn' },
+  { id: 'bking', name: 'Mundo Rey Negro', pieceId: 'white-king', type: 'king' },
+  { id: 'brook', name: 'Mundo Torre Negro', pieceId: 'white-rook', type: 'rook' },
+  { id: 'bbishop', name: 'Mundo Alfil Negro', pieceId: 'white-bishop', type: 'bishop' },
+  { id: 'bqueen', name: 'Mundo Dama Negro', pieceId: 'white-queen', type: 'queen' },
+  { id: 'bknight', name: 'Mundo Caballo Negro', pieceId: 'white-knight', type: 'knight' }
 ];
 
 const INITIAL_BOARD = Array(8).fill(null).map(() => Array(8).fill(''));
@@ -142,7 +94,7 @@ export default function ChessGame() {
   const [playerImage, setPlayerImage] = useState<string | null>(null);
   const [capturedChars, setCapturedChars] = useState<string[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [currentWorld, setCurrentWorld] = useState<{type: string, level: number} | null>(null);
+  const [currentWorld, setCurrentWorld] = useState<{type: string, level: number, mode: 'stars' | 'black'} | null>(null);
   const [showVictory, setShowVictory] = useState(false);
 
   const playVictorySound = () => {
@@ -441,7 +393,7 @@ export default function ChessGame() {
           setCapturedChars(prev => [...prev, capturedCharId]);
           playCaptureSound();
           setIsCapturing(true);
-          setTimeout(() => setIsCapturing(false), 500);
+          setTimeout(() => setIsCapturing(false), 300);
         } else {
           playPopSound();
         }
@@ -451,14 +403,19 @@ export default function ChessGame() {
         newBoard[row][col] = movingCharId;
 
         // Check for victory
-        const remainingStars = newBoard.flat().filter(cell => cell === 'star').length;
+        const isTarget = (cellId: string) => {
+          if (!cellId) return false;
+          if (currentWorld?.mode === 'stars') return cellId === 'star';
+          return cellId.startsWith('black-');
+        };
+        const remainingTargets = newBoard.flat().filter(isTarget).length;
         const movingChar = getCharStyles(movingCharId);
         const reachedEnd = movingChar.type === 'pawn' && (
           (movingCharId.startsWith('white') && row === 0) || 
           (movingCharId.startsWith('black') && row === 7)
         );
 
-        if (currentWorld && (remainingStars === 0 || reachedEnd)) {
+        if (currentWorld && (remainingTargets === 0 || reachedEnd)) {
           setTimeout(() => {
             setShowVictory(true);
             playVictorySound();
@@ -535,7 +492,7 @@ export default function ChessGame() {
     playResetSound();
   };
 
-  const generateProceduralWorld = (type: string, level: number) => {
+  const generateProceduralWorld = (type: string, level: number, mode: 'stars' | 'black') => {
     const newBoard = INITIAL_BOARD.map(row => [...row]);
     let currentRow: number, currentCol: number;
     const pieceId = `white-${type}`;
@@ -550,28 +507,25 @@ export default function ChessGame() {
     }
     
     newBoard[currentRow][currentCol] = pieceId;
-    const starsToPlace = type === 'pawn' ? 7 : 10;
-    let placedStars = 0;
+    const targetsToPlace = type === 'pawn' ? 7 : 10;
+    let placedTargets = 0;
     let attempts = 0;
     const maxAttempts = 200;
 
-    // Simulate moves to place stars (guarantees solvability)
-    while (placedStars < starsToPlace && attempts < maxAttempts) {
+    const blackPieceIds = ['black-pawn', 'black-knight', 'black-bishop', 'black-rook', 'black-queen', 'black-king'];
+
+    // Simulate moves to place targets (guarantees solvability)
+    while (placedTargets < targetsToPlace && attempts < maxAttempts) {
       attempts++;
       const possibleMoves: Position[] = [];
       
       // Check all squares for valid moves from current virtual position
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
-          // Temporarily set board to check moves
-          const tempBoard = newBoard.map(row => [...row]);
-          tempBoard[currentRow][currentCol] = pieceId;
-          
           // Simplified move check for generator
           const from = { row: currentRow, col: currentCol };
           const to = { row: r, col: c };
           
-          // Reuse isValidMove logic (simplified)
           const rowDiff = to.row - from.row;
           const colDiff = to.col - from.col;
           const absRowDiff = Math.abs(rowDiff);
@@ -579,8 +533,7 @@ export default function ChessGame() {
 
           let valid = false;
           if (type === 'pawn') {
-            // Pawns only move forward-diagonal for captures in these worlds
-            const direction = pieceId.startsWith('black') ? 1 : -1;
+            const direction = -1; // White pawn always in these worlds
             valid = rowDiff === direction && absColDiff === 1;
           } else if (type === 'king') {
             valid = absRowDiff <= 1 && absColDiff <= 1 && (absRowDiff !== 0 || absColDiff !== 0);
@@ -602,15 +555,17 @@ export default function ChessGame() {
 
       if (possibleMoves.length > 0) {
         const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-        newBoard[move.row][move.col] = 'star';
+        if (mode === 'stars') {
+          newBoard[move.row][move.col] = 'star';
+        } else {
+          const randomBlackPiece = blackPieceIds[Math.floor(Math.random() * blackPieceIds.length)];
+          newBoard[move.row][move.col] = randomBlackPiece;
+        }
         currentRow = move.row;
         currentCol = move.col;
-        placedStars++;
+        placedTargets++;
       } else {
-        // If stuck, try jumping to a random empty square to continue placing
-        // EXCEPT for pawns, who cannot jump back or move if at the end
         if (type === 'pawn') break;
-        
         currentRow = Math.floor(Math.random() * 8);
         currentCol = Math.floor(Math.random() * 8);
       }
@@ -619,13 +574,13 @@ export default function ChessGame() {
     return newBoard;
   };
 
-  const loadWorld = (worldType: string, level: number = 1) => {
-    const newBoard = generateProceduralWorld(worldType, level);
+  const loadWorld = (worldType: string, level: number = 1, mode: 'stars' | 'black' = 'stars') => {
+    const newBoard = generateProceduralWorld(worldType, level, mode);
     setBoard(newBoard);
     setSelected(null);
     setIsEditorMode(false);
     setCapturedChars([]);
-    setCurrentWorld({ type: worldType, level });
+    setCurrentWorld({ type: worldType, level, mode });
     setShowVictory(false);
     playToggleSound(true);
   };
@@ -638,25 +593,55 @@ export default function ChessGame() {
 
         <div className="w-full flex flex-col items-center justify-center gap-2">
           
-          <div className="flex flex-row items-start gap-8">
-            {/* Left Sidebar: Worlds */}
-            <div className="flex flex-col gap-4 pt-4">
-              <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-2 text-center">Mundos</div>
-              {WORLDS_CONFIG.map((world) => {
+          <div className="flex flex-row items-start gap-2 sm:gap-3 md:gap-4">
+            {/* Left Sidebar 1: Black Worlds */}
+            <div className="flex flex-col gap-3 pt-4">
+              <div className="text-[8px] sm:text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-1 text-center">Soldiers</div>
+              {BLACK_WORLDS_CONFIG.map((world) => {
                 const char = getCharStyles(world.pieceId);
-                const isActive = currentWorld?.type === world.type;
+                const isActive = currentWorld?.type === world.type && currentWorld?.mode === 'black';
                 return (
                   <button
                     key={world.id}
-                    onClick={() => loadWorld(world.type, 1)}
+                    onClick={() => loadWorld(world.type, 1, 'black')}
                     className={`
-                      group relative w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
+                      group relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
                       ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
                     `}
                     title={world.name}
                   >
-                    <div className={`w-8 h-8 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'}`}>
-                      {renderPieceSVG(char)}
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'}`}>
+                      {renderPiece(char)}
+                    </div>
+                    {isActive && (
+                      <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
+                        L{currentWorld.level}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/5 transition-colors" />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Left Sidebar 2: Star Worlds */}
+            <div className="flex flex-col gap-3 pt-4">
+              <div className="text-[8px] sm:text-[10px] font-bold text-yellow-400 uppercase tracking-[0.2em] mb-1 text-center animate-yellow-glow">Stars</div>
+              {WORLDS_CONFIG.map((world) => {
+                const char = getCharStyles(world.pieceId);
+                const isActive = currentWorld?.type === world.type && currentWorld?.mode === 'stars';
+                return (
+                  <button
+                    key={world.id}
+                    onClick={() => loadWorld(world.type, 1, 'stars')}
+                    className={`
+                      group relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
+                      ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
+                    `}
+                    title={world.name}
+                  >
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} animate-yellow-glow`}>
+                      {renderPiece(char)}
                     </div>
                     {isActive && (
                       <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
@@ -672,9 +657,9 @@ export default function ChessGame() {
             {/* Middle Column: Board + Captured Lobby */}
             <div className="flex flex-col gap-4 items-center">
               {/* Main Board Container */}
-              <div className={`relative bg-[#262421] rounded-lg shadow-2xl overflow-hidden border-4 border-[#262421] transition-all duration-100 ${isCapturing ? 'animate-shake ring-4 ring-red-500/50' : ''}`}>
+              <div className={`relative bg-[#262421] rounded-lg shadow-2xl overflow-hidden border-4 border-[#262421] transition-all duration-100 ${isCapturing ? 'animate-capture-pop ring-4 ring-red-500/50' : ''}`}>
                 {isCapturing && (
-                  <div className="absolute inset-0 bg-white/10 z-50 pointer-events-none animate-pulse" />
+                  <div className="absolute inset-0 bg-white/5 z-50 pointer-events-none" />
                 )}
                 
                 {/* Top Bar - Always present to keep board fixed */}
@@ -693,7 +678,7 @@ export default function ChessGame() {
                         >
                           {!char.isEmpty && (
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ${activeCharId === char.id ? 'scale-110 opacity-100' : 'opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0'} transition-all`}>
-                              {renderPieceSVG(char)}
+                              {renderPiece(char)}
                             </div>
                           )}
                           {activeCharId === char.id && !char.isEmpty && (
@@ -728,7 +713,7 @@ export default function ChessGame() {
 
                   <div className="flex gap-4">
                     <button 
-                      onClick={() => loadWorld(currentWorld!.type, currentWorld!.level)}
+                      onClick={() => loadWorld(currentWorld!.type, currentWorld!.level, currentWorld!.mode)}
                       className="flex flex-col items-center gap-2 group"
                     >
                       <div className="w-14 h-14 bg-zinc-800 hover:bg-zinc-700 rounded-2xl flex items-center justify-center transition-all active:scale-90 border border-zinc-700">
@@ -738,7 +723,7 @@ export default function ChessGame() {
                     </button>
 
                     <button 
-                      onClick={() => loadWorld(currentWorld!.type, currentWorld!.level + 1)}
+                      onClick={() => loadWorld(currentWorld!.type, currentWorld!.level + 1, currentWorld!.mode)}
                       className="flex flex-col items-center gap-2 group"
                     >
                       <div className="w-14 h-14 bg-red-600 hover:bg-red-500 rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-[0_0_20px_rgba(220,38,38,0.4)]">
@@ -780,19 +765,19 @@ export default function ChessGame() {
                     className={`
                       w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center 
                       cursor-pointer transition-all duration-200 relative
-                      ${isDark ? 'bg-[#769656]' : 'bg-[#eeeed2]'}
+                      ${isDark ? 'bg-[#b58863]' : 'bg-[#f0d9b5]'}
                       ${isSelected && charStyles ? `ring-4 ring-inset ${charStyles.ring} z-10` : ''}
                       ${isEditorMode ? 'hover:brightness-110' : 'hover:brightness-95'}
                     `}
                   >
                     {/* Internal Coordinates */}
                     {showLetter && (
-                      <span className={`absolute bottom-0.5 left-0.5 text-[8px] sm:text-[10px] font-bold select-none ${isDark ? 'text-[#eeeed2]' : 'text-[#769656]'}`}>
+                      <span className={`absolute bottom-0.5 left-0.5 text-[8px] sm:text-[10px] font-bold select-none ${isDark ? 'text-[#f0d9b5]' : 'text-[#b58863]'}`}>
                         {letter}
                       </span>
                     )}
                     {showNumber && (
-                      <span className={`absolute top-0.5 right-0.5 text-[8px] sm:text-[10px] font-bold select-none ${isDark ? 'text-[#eeeed2]' : 'text-[#769656]'}`}>
+                      <span className={`absolute top-0.5 right-0.5 text-[8px] sm:text-[10px] font-bold select-none ${isDark ? 'text-[#f0d9b5]' : 'text-[#b58863]'}`}>
                         {number}
                       </span>
                     )}
@@ -814,7 +799,7 @@ export default function ChessGame() {
                     >
                       {charStyles ? (
                         <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 relative flex items-center justify-center pointer-events-none">
-                          {renderPieceSVG(charStyles)}
+                          {renderPiece(charStyles)}
                         </div>
                       ) : null}
                     </span>
@@ -839,7 +824,7 @@ export default function ChessGame() {
                 >
                   {!char.isEmpty && (
                     <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ${activeCharId === char.id ? 'scale-110 opacity-100' : 'opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0'} transition-all`}>
-                      {renderPieceSVG(char)}
+                      {renderPiece(char)}
                     </div>
                   )}
                   {activeCharId === char.id && !char.isEmpty && (
@@ -910,7 +895,7 @@ export default function ChessGame() {
                         style={{ animationDelay: `${index * 0.05}s` }}
                       >
                         <div className="w-8 h-8">
-                          {renderPieceSVG(charStyles)}
+                          {renderPiece(charStyles)}
                         </div>
                       </div>
                     );
@@ -970,11 +955,10 @@ export default function ChessGame() {
       from { transform: translateX(-20px); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px) rotate(-1deg); }
-      50% { transform: translateX(4px) rotate(1deg); }
-      75% { transform: translateX(-4px) rotate(-1deg); }
+    @keyframes capture-pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+      100% { transform: scale(1); }
     }
     @keyframes glow {
       0% { box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
@@ -985,9 +969,13 @@ export default function ChessGame() {
       0% { transform: scale(0); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
+    @keyframes yellow-glow {
+      0%, 100% { filter: drop-shadow(0 0 15px rgba(253, 224, 71, 1)) drop-shadow(0 0 30px rgba(253, 224, 71, 0.8)); }
+    }
+    .animate-yellow-glow { filter: drop-shadow(0 0 15px rgba(253, 224, 71, 1)) drop-shadow(0 0 30px rgba(253, 224, 71, 0.8)); }
     .scale-in-center { animation: scale-in-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both; }
     .animate-glow { animation: glow 1s ease-out; }
-    .animate-shake { animation: shake 0.15s ease-in-out infinite; }
+    .animate-capture-pop { animation: capture-pop 0.2s ease-out; }
     .animate-in { animation: slide-in-from-left 0.5s ease-out; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
