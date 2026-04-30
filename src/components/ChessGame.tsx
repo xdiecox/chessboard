@@ -683,7 +683,7 @@ export default function ChessGame() {
                         const charStyles = getCharStyles(charId);
                         return (
                           <div 
-                            className="w-10 h-10 rounded-xl bg-zinc-900/50 border border-red-600/20 flex items-center justify-center animate-in animate-glow shadow-inner"
+                            className="w-10 h-10 rounded-xl bg-white border border-red-100 flex items-center justify-center animate-in animate-glow shadow-inner"
                           >
                             <div className="w-7 h-7">
                               {renderPiece(charStyles)}
