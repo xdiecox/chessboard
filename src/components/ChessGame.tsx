@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Play, Edit2, UserPlus, Upload, Image as ImageIcon, RefreshCw, ArrowRight, Trophy } from 'lucide-react';
+import { RotateCcw, Play, Edit2, UserPlus, Upload, Image as ImageIcon, RefreshCw, ArrowRight, Trophy, Smile } from 'lucide-react';
 
 // Character definitions
 const STAR_SVG = (color: string) => (
@@ -390,7 +390,7 @@ export default function ChessGame() {
         const capturedCharId = board[row][col];
         
         if (moveResult.isCapture && capturedCharId) {
-          setCapturedChars(prev => [...prev, capturedCharId]);
+          setCapturedChars([capturedCharId]);
           playCaptureSound();
           setIsCapturing(true);
           setTimeout(() => setIsCapturing(false), 300);
@@ -593,65 +593,108 @@ export default function ChessGame() {
 
         <div className="w-full flex flex-col items-center justify-center gap-2">
           
-          <div className="flex flex-row items-start gap-2 sm:gap-3 md:gap-4">
-            {/* Left Sidebar 1: Black Worlds */}
-            <div className="flex flex-col gap-3 pt-4">
-              <div className="text-[8px] sm:text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-1 text-center">Soldiers</div>
-              {BLACK_WORLDS_CONFIG.map((world) => {
-                const char = getCharStyles(world.pieceId);
-                const isActive = currentWorld?.type === world.type && currentWorld?.mode === 'black';
-                return (
-                  <button
-                    key={world.id}
-                    onClick={() => loadWorld(world.type, 1, 'black')}
-                    className={`
-                      group relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
-                      ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
-                    `}
-                    title={world.name}
-                  >
-                    <div className={`w-6 h-6 sm:w-8 sm:h-8 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'}`}>
-                      {renderPiece(char)}
-                    </div>
-                    {isActive && (
-                      <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
-                        L{currentWorld.level}
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/5 transition-colors" />
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex flex-row items-start gap-4 sm:gap-6 md:gap-8">
+            {/* Left Area: Worlds + Controls */}
+            <div className="flex flex-col gap-4 w-[72px] sm:w-[92px] md:w-[112px] mt-16">
+              <div className="flex flex-row items-start gap-2 sm:gap-3 md:gap-4 w-full">
+                {/* Left Sidebar 1: Black Worlds */}
+                <div className="flex flex-col gap-2 pt-2 items-center flex-1">
+                  <div className="text-[7px] sm:text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-1 text-center">Soldiers</div>
+                  {BLACK_WORLDS_CONFIG.map((world) => {
+                    const char = getCharStyles(world.pieceId);
+                    const isActive = currentWorld?.type === world.type && currentWorld?.mode === 'black';
+                    return (
+                      <button
+                        key={world.id}
+                        onClick={() => loadWorld(world.type, 1, 'black')}
+                        className={`
+                          group relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
+                          ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
+                        `}
+                        title={world.name}
+                      >
+                        <div className={`w-5 h-5 sm:w-6 sm:h-6 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'}`}>
+                          {renderPiece(char)}
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
+                            L{currentWorld.level}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/5 transition-colors" />
+                      </button>
+                    );
+                  })}
+                </div>
 
-            {/* Left Sidebar 2: Star Worlds */}
-            <div className="flex flex-col gap-3 pt-4">
-              <div className="text-[8px] sm:text-[10px] font-bold text-yellow-400 uppercase tracking-[0.2em] mb-1 text-center animate-yellow-glow">Stars</div>
-              {WORLDS_CONFIG.map((world) => {
-                const char = getCharStyles(world.pieceId);
-                const isActive = currentWorld?.type === world.type && currentWorld?.mode === 'stars';
-                return (
-                  <button
-                    key={world.id}
-                    onClick={() => loadWorld(world.type, 1, 'stars')}
-                    className={`
-                      group relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
-                      ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
-                    `}
-                    title={world.name}
-                  >
-                    <div className={`w-6 h-6 sm:w-8 sm:h-8 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} animate-yellow-glow`}>
-                      {renderPiece(char)}
+                {/* Left Sidebar 2: Star Worlds */}
+                <div className="flex flex-col gap-2 pt-2 items-center flex-1">
+                  <div className="text-[7px] sm:text-[8px] font-bold text-yellow-400 uppercase tracking-[0.2em] mb-1 text-center animate-yellow-glow">Stars</div>
+                  {WORLDS_CONFIG.map((world) => {
+                    const char = getCharStyles(world.pieceId);
+                    const isActive = currentWorld?.type === world.type && currentWorld?.mode === 'stars';
+                    return (
+                      <button
+                        key={world.id}
+                        onClick={() => loadWorld(world.type, 1, 'stars')}
+                        className={`
+                          group relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-zinc-900/50 border rounded-xl flex items-center justify-center transition-all active:scale-95 overflow-hidden
+                          ${isActive ? 'border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'border-zinc-800/50 hover:bg-zinc-800'}
+                        `}
+                        title={world.name}
+                      >
+                        <div className={`w-5 h-5 sm:w-6 sm:h-6 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} animate-yellow-glow`}>
+                          {renderPiece(char)}
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
+                            L{currentWorld.level}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/5 transition-colors" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mini Captured Lobby - Only in Game Mode */}
+              {!isEditorMode && (
+                <div className="bg-[#161512] rounded-2xl border border-zinc-800/50 p-2.5 flex flex-col items-center gap-2.5 w-full animate-in fade-in slide-in-from-top-4 duration-500 shadow-xl mt-auto">
+                  {/* Win Indicator */}
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(253,224,71,0.05)]">
+                      <Smile size={20} />
                     </div>
-                    {isActive && (
-                      <div className="absolute top-0 right-0 bg-red-600 text-[8px] font-black px-1 rounded-bl-md">
-                        L{currentWorld.level}
+                  </div>
+
+                  {/* Horizontal Divider */}
+                  <div className="w-6 h-px bg-zinc-800/50 rounded-full" />
+
+                  {/* Captured Pieces - Only last one */}
+                  <div className="flex justify-center py-0.5">
+                    {capturedChars.length === 0 ? (
+                      <div className="w-8 h-8 rounded-lg border border-dashed border-zinc-800/50 flex items-center justify-center opacity-10">
+                        <div className="w-3 h-3 rounded-full border border-zinc-700" />
                       </div>
+                    ) : (
+                      (() => {
+                        const charId = capturedChars[capturedChars.length - 1];
+                        const charStyles = getCharStyles(charId);
+                        return (
+                          <div 
+                            className="w-10 h-10 rounded-xl bg-zinc-900/50 border border-red-600/20 flex items-center justify-center animate-in animate-glow shadow-inner"
+                          >
+                            <div className="w-7 h-7">
+                              {renderPiece(charStyles)}
+                            </div>
+                          </div>
+                        );
+                      })()
                     )}
-                    <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/5 transition-colors" />
-                  </button>
-                );
-              })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Middle Column: Board + Captured Lobby */}
@@ -835,81 +878,11 @@ export default function ChessGame() {
             </div>
           )}
         </div>
-
-        {/* Captured Pieces Lobby (Bottom) - Only show in Game Mode */}
-        {!isEditorMode && (
-          <div className="w-[332px] sm:w-[460px] md:w-[524px] mt-0">
-            <div className="bg-[#161512] rounded-xl border-2 border-[#262421] p-4 min-h-[200px] flex items-start gap-4">
-              {/* Upload Button */}
-              <div className="relative group shrink-0 mt-2">
-                <input 
-                  type="file" 
-                  id="player-image" 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-                <label 
-                  htmlFor="player-image"
-                  className={`
-                    w-20 h-20 rounded-xl border-2 border-dashed 
-                    flex flex-col items-center justify-center gap-1 cursor-pointer
-                    transition-all duration-500 overflow-hidden relative
-                    ${playerImage ? 'border-transparent shadow-xl' : 'border-zinc-800 hover:border-red-600/50 bg-zinc-950/50'}
-                  `}
-                >
-                  {playerImage ? (
-                    <>
-                      <img src={playerImage} alt="Jugador" className="w-full h-full object-contain p-1 drop-shadow-[0_0_2px_rgba(0,0,0,1)]" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Upload className="text-white" size={14} />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-600 group-hover:text-red-500 group-hover:bg-red-500/10 transition-all">
-                        <ImageIcon size={14} />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest">JUGADOR</p>
-                      </div>
-                    </>
-                  )}
-                </label>
-              </div>
-
-              {/* Vertical Divider */}
-              <div className="w-px h-32 bg-zinc-800/50 mt-2" />
-
-              {/* Captured Pieces List */}
-              <div className="flex flex-wrap gap-2 items-start overflow-y-auto custom-scrollbar pt-2 max-h-[160px]">
-                {capturedChars.length === 0 ? (
-                  <p className="text-zinc-600 text-[10px] uppercase tracking-widest font-bold ml-2">Sin capturas</p>
-                ) : (
-                  capturedChars.map((charId, index) => {
-                    const charStyles = getCharStyles(charId);
-                    return (
-                      <div 
-                        key={`${charId}-${index}`}
-                        className="w-12 h-12 rounded-lg bg-zinc-900/50 border border-zinc-800 flex items-center justify-center animate-in animate-glow"
-                        style={{ animationDelay: `${index * 0.05}s` }}
-                      >
-                        <div className="w-8 h-8">
-                          {renderPiece(charStyles)}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-        {/* Right Sidebar Controls */}
-        <div className="flex flex-col gap-6 pt-4">
-          {/* 1. Start/Edit Toggle */}
+      {/* Right Sidebar: Controls */}
+      <div className="flex flex-col gap-4 mt-16 pt-4">
+        <div className="flex flex-col border border-zinc-800/50 rounded-xl overflow-hidden bg-zinc-900/50 w-10 sm:w-12 md:w-14">
           <button 
             onClick={() => {
               const nextMode = !isEditorMode;
@@ -917,39 +890,34 @@ export default function ChessGame() {
               playToggleSound(!nextMode);
             }}
             className={`
-              p-3 rounded-xl transition-all active:scale-90 shadow-lg
+              w-full py-3 transition-all active:scale-95 flex items-center justify-center
               ${isEditorMode 
-                ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-900/20' 
-                : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700'}
+                ? 'bg-red-600 hover:bg-red-500 text-white shadow-inner' 
+                : 'bg-transparent hover:bg-zinc-800 text-zinc-300 border-b border-zinc-800/50'}
             `}
             title={isEditorMode ? "Iniciar Juego" : "Editar"}
           >
-            {isEditorMode ? <Play size={20} fill="currentColor" /> : <Edit2 size={20} />}
+            {isEditorMode ? <Play size={16} fill="currentColor" /> : <Edit2 size={16} />}
           </button>
 
-          {/* 2. Reset Button */}
           <button 
             onClick={resetGame}
-            className="p-3 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800/50 rounded-xl text-zinc-500 hover:text-zinc-100 transition-all active:scale-90 group"
+            className="w-full py-3 bg-transparent hover:bg-zinc-800 text-zinc-500 hover:text-zinc-100 transition-all active:scale-95 flex items-center justify-center border-b border-zinc-800/50 group"
             title="Reiniciar"
           >
-            <RotateCcw size={20} className="group-hover:rotate-[-45deg] transition-transform" />
+            <RotateCcw size={16} className="group-hover:rotate-[-45deg] transition-transform" />
           </button>
 
-          {/* 3. Status Indicator */}
-          <div className="flex justify-center py-2">
+          <div className="flex items-center justify-center py-3 bg-zinc-900/30">
             <div 
-              className={`w-3 h-3 rounded-full transition-all duration-500 ${isEditorMode ? 'bg-zinc-700' : 'bg-red-600 animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.5)]'}`}
+              className={`w-2 h-2 rounded-full transition-all duration-500 ${isEditorMode ? 'bg-zinc-700' : 'bg-red-600 animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.5)]'}`}
               title={isEditorMode ? "Modo Editor" : "Modo Juego"}
             />
           </div>
         </div>
       </div>
-
-      {/* Captured Pieces Lobby (Bottom) - Removed from here, now inside the board column */}
     </div>
   </div>
-
   <style dangerouslySetInnerHTML={{ __html: `
     @keyframes slide-in-from-left {
       from { transform: translateX(-20px); opacity: 0; }
@@ -982,5 +950,6 @@ export default function ChessGame() {
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
   `}} />
 </div>
-  );
+</div>
+);
 }
