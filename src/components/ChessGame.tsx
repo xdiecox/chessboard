@@ -406,7 +406,7 @@ export default function ChessGame() {
         const isTarget = (cellId: string) => {
           if (!cellId) return false;
           if (currentWorld?.mode === 'stars') return cellId === 'star';
-          return cellId.startsWith('black-');
+          return cellId.startsWith('black-') || cellId === 'star';
         };
         const remainingTargets = newBoard.flat().filter(isTarget).length;
         const movingChar = getCharStyles(movingCharId);
@@ -512,7 +512,16 @@ export default function ChessGame() {
     let attempts = 0;
     const maxAttempts = 200;
 
-    const blackPieceIds = ['black-pawn', 'black-knight', 'black-bishop', 'black-rook', 'black-queen', 'black-king'];
+    // Define the piece pool for Soldiers mode as requested:
+    // 2 rooks, 2 bishops, 2 knights, 2 pawns, 1 queen, 1 star
+    const soldiersPool = [
+      'black-rook', 'black-rook',
+      'black-bishop', 'black-bishop',
+      'black-knight', 'black-knight',
+      'black-pawn', 'black-pawn',
+      'black-queen',
+      'star'
+    ].sort(() => Math.random() - 0.5);
 
     // Simulate moves to place targets (guarantees solvability)
     while (placedTargets < targetsToPlace && attempts < maxAttempts) {
@@ -558,8 +567,9 @@ export default function ChessGame() {
         if (mode === 'stars') {
           newBoard[move.row][move.col] = 'star';
         } else {
-          const randomBlackPiece = blackPieceIds[Math.floor(Math.random() * blackPieceIds.length)];
-          newBoard[move.row][move.col] = randomBlackPiece;
+          // Use the predefined pool for Soldiers mode
+          const pieceFromPool = soldiersPool[placedTargets % soldiersPool.length];
+          newBoard[move.row][move.col] = pieceFromPool;
         }
         currentRow = move.row;
         currentCol = move.col;
